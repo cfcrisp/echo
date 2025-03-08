@@ -1,0 +1,60 @@
+# Node.js and npm
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+# Keep package.json for dependency management
+
+# Client (React) specific
+client/build/
+client/.env
+client/.DS_Store
+client/*.log
+
+# Server specific
+server/node_modules/
+server/.env
+server/*.log
+server/dist/
+server/.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+
+# Database
+*.sql~
+*.backup
+postgresql.log
+
+# Build and deployment artifacts
+dist/
+build/
+*.zip
+*.tar.gz
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+Dockerfile.local
+
+# Logs and databases
+*.log
+*.sql
+!server/scripts/database-setup.sql  # Keep the intentional SQL script
+
+# Miscellaneous
+*.swp
+*~
+._*

@@ -1,0 +1,27 @@
+# Use the official PostgreSQL image
+FROM postgres:17
+
+# Set environment variables
+ENV POSTGRES_USER=admin
+ENV POSTGRES_DB=echo_db
+ENV PGDATA=/var/lib/postgresql/data/pgdata
+
+# Copy initialization scripts
+COPY database-setup.sql /docker-entrypoint-initdb.d/
+
+# Expose PostgreSQL port
+EXPOSE 5434
+
+# Set the default command
+CMD ["postgres"]
+
+# build: docker build -t echo_db .
+# run container: docker run --name echo_db -e POSTGRES_PASSWORD=<password> -p 5434:5432 -d echo_db
+# validate: docker ps
+# connect: psql -h localhost -p 5434 -U admin -d echo_db
+# stop container: docker stop echo_db
+# rm container: docker rm echo_db
+# persist data: docker run -v pgdata:/var/lib/postgresql/data/pgdata ...
+# troubleshoot: docker logs echo_db
+# bash session: docker exec -ti <container_id> bash
+# bash access db: psql -U admin -d echo_db

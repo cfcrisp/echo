@@ -20,84 +20,43 @@ Echo is a customer request tracking software designed to make it easy to manage 
 
 ### 1\. Set Up the Backend
 
--   Navigate to the server directory:
-
-    bash
-
-    CollapseWrapCopy
-
-    `cd server`
-
--   Install dependencies:
-
-    bash
-
-    CollapseWrapCopy
-
-    `npm install`
-
+-   `cd server`
+-   `npm install`
 -   Create a .env file in the server directory with the following variables:
+    - `DB_USER=admin`
+    - `DB_HOST=localhost` 
+    - `DB_NAME=echo_db`
+    - `DB_PASSWORD=your_admin_password`
+    - `DB_PORT=5432`
+    - `JWT_SECRET=your-secure-secret-key`
+    - `PORT=5002`
 
-    text
+#### Set up the PostgreSQL database with Docker:
+-   **Build the image:** `docker build -t echo_db .`
+-   **Run the container:** `docker run --name echo_db -e POSTGRES_PASSWORD=<password> -p 5434:5432 -d echo_db`
+-   **Validate running container:** `docker ps`
+-   **Connect to the database:** `psql -h localhost -p 5434 -U admin -d echo_db`
+-   **Stop the container:** `docker stop echo_db`
+-   **Remove the container:** `docker rm echo_db`
+Others:
+-   **Persist data:** Mount a volume using `-v pgdata:/var/lib/postgresql/data/pgdata`
+-   **Check logs for troubleshooting:** `docker logs echo_db`
+-   **Open a Bash session inside the container:** `docker exec -ti <container_id> bash`
+-   **Access the database from Bash:** `psql -U admin -d echo_db`
 
-    CollapseWrapCopy
-
-    `DB_USER=admin DB_HOST=localhost DB_NAME=echo_db DB_PASSWORD=your_admin_password DB_PORT=5432 JWT_SECRET=your-secure-secret-key PORT=5002`
-
--   Set up the PostgreSQL database:
-    -   Ensure PostgreSQL is running.
-    -   Run the SQL script in server/scripts/database-setup.sql to create the database and tables:
-
-        bash
-
-        CollapseWrapCopy
-
-        `psql -U admin -d postgres < server/scripts/database-setup.sql`
-
-    -   Verify the admin role and database connection.
 
 ### 2\. Set Up the Frontend
 
--   Navigate to the client directory:
-
-    bash
-
-    CollapseWrapCopy
-
-    `cd ../client`
-
--   Install dependencies:
-
-    bash
-
-    CollapseWrapCopy
-
-    `npm install`
+-   `cd ../client`
+-   `npm install`
 
 -   Optionally, create a .env file for client-side environment variables (e.g., API URL):
-
-    text
-
-    CollapseWrapCopy
-
     `REACT_APP_API_URL=http://localhost:5002/api`
 
 ### 3\. Run the Application
 
--   Start the backend server:
+-   `cd ../server npm start`
+-   `cd ../client npm start`
 
-    bash
-
-    CollapseWrapCopy
-
-    `cd ../server npm start`
-
--   Start the frontend development server:
-
-    bash
-
-    CollapseWrapCopy
-
-    `cd ../client npm start`
 
 -   Open your browser at http://localhost:3000 to view the app.

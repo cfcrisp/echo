@@ -27,7 +27,7 @@ Echo is a customer request tracking software designed to make it easy to manage 
     - `DB_HOST=localhost` 
     - `DB_NAME=echo_db`
     - `DB_PASSWORD=your_admin_password`
-    - `DB_PORT=5432`
+    - `DB_PORT=5434`
     - `JWT_SECRET=your-secure-secret-key`
     - `PORT=5002`
 

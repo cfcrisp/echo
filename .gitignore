@@ -25,7 +25,6 @@ server/.DS_Store
 .env.production
 
 # Database
-*.sql~
 *.backup
 postgresql.log
 
@@ -51,8 +50,6 @@ Dockerfile.local
 
 # Logs and databases
 *.log
-*.sql
-!server/scripts/database-setup.sql  # Keep the intentional SQL script
 
 # Miscellaneous
 *.swp

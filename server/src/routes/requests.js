@@ -94,6 +94,14 @@ router.post("/", auth, async (req, res) => {
   const { title, description, priority, effort, status, position, customers, labels } = req.body
 
   try {
+    // Validate required fields
+    if (!title) {
+      return res.status(400).json({ msg: "Title is required" });
+    }
+    
+    // Ensure effort is an integer
+    const effortValue = typeof effort === 'number' ? effort : 1;
+    
     // Start a transaction
     await db.query("BEGIN")
 
@@ -108,7 +116,7 @@ router.post("/", auth, async (req, res) => {
         (id, title, description, priority, effort, status, position, user_id) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
        RETURNING *`,
-      [requestId, title, description, priority, effort, status, position, req.user.id],
+      [requestId, title, description || "", priority || "Medium", effortValue, status || "Not Started", position || 0, req.user.id],
     )
 
     const request = requestResult.rows[0]
@@ -166,6 +174,9 @@ router.put("/:id", auth, async (req, res) => {
     if (checkResult.rows.length === 0) {
       return res.status(404).json({ msg: "Request not found" })
     }
+    
+    // Ensure effort is an integer
+    const effortValue = typeof effort === 'number' ? effort : 1;
 
     // Update request
     const requestResult = await db.query(
@@ -173,7 +184,7 @@ router.put("/:id", auth, async (req, res) => {
        SET title = $1, description = $2, priority = $3, effort = $4, status = $5, position = $6, updated_at = NOW() 
        WHERE id = $7 
        RETURNING *`,
-      [title, description, priority, effort, status, position, req.params.id],
+      [title || "", description || "", priority || "Medium", effortValue, status || "Not Started", position || 0, req.params.id],
     )
 
     // Update customers

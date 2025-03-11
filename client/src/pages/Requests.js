@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import axios from "axios"
-import { FiPlus, FiList, FiGrid, FiSearch, FiFilter } from "react-icons/fi"
+import { FiList, FiGrid, FiSearch, FiFilter } from "react-icons/fi"
 import RequestsTable from "../components/RequestsTable"
 import RequestsKanban from "../components/RequestsKanban"
 import FilterDialog from "../components/FilterDialog"
+import NewRequestButton from "../components/NewRequestButton"
 
 function Requests() {
   const [view, setView] = useState("list")
@@ -104,10 +105,7 @@ function Requests() {
             <FiFilter className="h-4 w-4" />
             Filter
           </button>
-          <Link to="/dashboard/requests/new" className="btn btn-primary flex items-center gap-2">
-            <FiPlus className="h-4 w-4" />
-            New Request
-          </Link>
+          <NewRequestButton />
         </div>
       </div>
 

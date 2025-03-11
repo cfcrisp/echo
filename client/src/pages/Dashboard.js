@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { Link } from "react-router-dom"
-import { FiTrendingUp, FiUsers, FiCheckCircle, FiActivity, FiPlus } from "react-icons/fi"
+import { FiTrendingUp, FiUsers, FiCheckCircle, FiActivity } from "react-icons/fi"
 import { Bar, Pie } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js"
 import { format } from "date-fns"
+import NewRequestButton from "../components/NewRequestButton"
 
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
@@ -95,10 +96,7 @@ function Dashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <Link to="/dashboard/requests" className="btn btn-primary flex items-center gap-2">
-          <FiPlus className="h-4 w-4" />
-          New Request
-        </Link>
+        <NewRequestButton />
       </div>
 
       {/* Key Metrics */}

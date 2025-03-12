@@ -5,11 +5,11 @@ import Dashboard from './pages/Dashboard.js';
 import Login from './pages/Login.js';
 import Register from './pages/Register.js';
 import Requests from './pages/Requests.js';
+import RequestDetails from './pages/RequestDetails.js';
 import DashboardLayout from './layouts/DashboardLayout.js';
 import AuthLayout from './layouts/AuthLayout.js';
 
 // Placeholder components
-const RequestDetails = () => <h1>Request Details Page (Not Implemented)</h1>;
 const Customers = () => <h1>Customers Page (Not Implemented)</h1>;
 const CustomerDetails = () => <h1>Customer Details Page (Not Implemented)</h1>;
 const Profile = () => <h1>Profile Page (Not Implemented)</h1>;

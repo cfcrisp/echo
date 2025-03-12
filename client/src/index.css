@@ -97,3 +97,9 @@
   }
 }
 
+@layer utilities {
+  .dropdown-menu {
+    @apply fixed z-[100] bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700;
+  }
+}
+

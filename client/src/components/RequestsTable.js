@@ -394,31 +394,38 @@ function RequestsTable({ requests = [] }) {
                 }
               })}
               
-              <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium relative">
-                <button
-                  className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowDropdown(showDropdown === request.id ? null : request.id);
-                  }}
-                >
-                  <FiMoreHorizontal className="h-4 w-4" />
-                </button>
-                
-                {showDropdown === request.id && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 z-10">
-                    <div className="py-1" role="menu" aria-orientation="vertical">
-                      <button
-                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                        onClick={(e) => handleDelete(e, request.id)}
-                        role="menuitem"
-                      >
-                        <FiTrash2 className="mr-2" />
-                        Delete
-                      </button>
+              <td className="px-3 py-4 text-right relative">
+                <div className="relative" style={{ position: 'static' }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDropdown(showDropdown === request.id ? null : request.id);
+                    }}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  >
+                    <FiMoreHorizontal className="h-5 w-5" />
+                  </button>
+                  
+                  {showDropdown === request.id && (
+                    <div 
+                      className="fixed mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-[100] border border-gray-200 dark:border-gray-700"
+                      style={{
+                        top: 'auto',
+                        right: '20px'
+                      }}
+                    >
+                      <div className="py-1">
+                        <button
+                          onClick={(e) => handleDelete(e, request.id)}
+                          className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                          <FiTrash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </td>
             </tr>
           ))}

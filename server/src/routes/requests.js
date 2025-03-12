@@ -241,22 +241,55 @@ router.put("/:id", auth, async (req, res) => {
 // @access  Private
 router.delete("/:id", auth, async (req, res) => {
   try {
+    const requestId = req.params.id;
+    console.log("Attempting to delete request:", requestId);
+    
     // Check if request exists
-    const checkResult = await db.query("SELECT * FROM requests WHERE id = $1", [req.params.id])
+    const checkResult = await db.query("SELECT * FROM requests WHERE id = $1", [requestId]);
+    console.log("Check result:", checkResult.rows);
 
     if (checkResult.rows.length === 0) {
-      return res.status(404).json({ msg: "Request not found" })
+      console.log("Request not found in database");
+      return res.status(404).json({ msg: "Request not found" });
     }
 
-    // Delete request (cascade will handle related records)
-    await db.query("DELETE FROM requests WHERE id = $1", [req.params.id])
-
-    res.json({ msg: "Request removed" })
+    // Start a transaction
+    await db.query("BEGIN");
+    
+    try {
+      // Record deletion activity
+      await db.query(
+        "INSERT INTO activities (user_id, action, target_type, target_id) VALUES ($1, $2, $3, $4)", 
+        [req.user.id, "deleted", "request", requestId]
+      );
+      
+      // Delete comments
+      await db.query("DELETE FROM comments WHERE request_id = $1", [requestId]);
+      
+      // Delete customer associations
+      await db.query("DELETE FROM customer_requests WHERE request_id = $1", [requestId]);
+      
+      // Delete labels
+      await db.query("DELETE FROM request_labels WHERE request_id = $1", [requestId]);
+      
+      // Finally delete the request
+      const deleteResult = await db.query("DELETE FROM requests WHERE id = $1 RETURNING id", [requestId]);
+      console.log("Delete result:", deleteResult.rows);
+      
+      await db.query("COMMIT");
+      console.log("Request successfully deleted:", requestId);
+      
+      return res.json({ msg: "Request removed", id: requestId });
+    } catch (innerErr) {
+      await db.query("ROLLBACK");
+      console.error("Transaction error:", innerErr.message);
+      throw innerErr;
+    }
   } catch (err) {
-    console.error(err.message)
-    res.status(500).send("Server error")
+    console.error("Error deleting request:", err.message);
+    res.status(500).json({ msg: "Server error", error: err.message });
   }
-})
+});
 
 // @route   POST api/requests/:id/comments
 // @desc    Add a comment to a request

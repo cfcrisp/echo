@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react"
-import axios from "axios"
-import { Link } from "react-router-dom"
-import { FiTrendingUp, FiUsers, FiCheckCircle, FiActivity } from "react-icons/fi"
-import { Bar, Pie } from "react-chartjs-2"
-import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js"
-import { format } from "date-fns"
-import NewRequestButton from "../components/NewRequestButton"
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { FiTrendingUp, FiUsers, FiCheckCircle, FiActivity } from "react-icons/fi";
+import { Bar, Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import { format } from "date-fns";
+import NewRequestButton from "../components/NewRequestButton";
 
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
@@ -15,27 +14,33 @@ function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("token")
-        const config = {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:5002/api/stats", {
           headers: {
             "x-auth-token": token,
-          },
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-        const res = await axios.get("http://localhost:5002/api/stats", config)
-        setStats(res.data)
-        setLoading(false)
+        
+        const data = await response.json();
+        setStats(data);
+        setLoading(false);
       } catch (err) {
-        console.error("Error fetching stats:", err)
-        setError("Failed to load dashboard data")
-        setLoading(false)
+        console.error("Error fetching stats:", err);
+        setError("Failed to load dashboard data");
+        setLoading(false);
       }
-    }
-
-    fetchStats()
-  }, [])
+    };
+  
+    fetchStats();
+  }, []);
 
   if (loading) {
     return (

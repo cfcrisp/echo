@@ -1,12 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Requests from './pages/Requests';
-import DashboardLayout from './layouts/DashboardLayout';
-import AuthLayout from './layouts/AuthLayout';
+import Dashboard from './pages/Dashboard.js';
+import Login from './pages/Login.js';
+import Register from './pages/Register.js';
+import Requests from './pages/Requests.js';
+import DashboardLayout from './layouts/DashboardLayout.js';
+import AuthLayout from './layouts/AuthLayout.js';
 
 // Placeholder components
 const RequestDetails = () => <h1>Request Details Page (Not Implemented)</h1>;

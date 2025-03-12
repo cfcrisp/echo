@@ -75,5 +75,25 @@
     @apply bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 font-medium;
   }
   
+  /* Table improvements for better readability with many columns */
+  .table-container {
+    @apply overflow-x-auto max-w-full;
+  }
+  
+  .table-compact th {
+    @apply px-3 py-3 text-xs whitespace-nowrap;
+  }
+  
+  .table-compact td {
+    @apply px-3 py-4 text-sm max-w-[200px] overflow-hidden text-ellipsis;
+  }
+  
+  .column-settings-btn {
+    @apply text-gray-400 hover:text-gray-500 dark:hover:text-gray-300;
+  }
+  
+  .column-dropdown {
+    @apply absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 z-20;
+  }
 }
 

@@ -1,8 +1,10 @@
-"use client"
-import { Link } from "react-router-dom"
-import { FiMoreHorizontal } from "react-icons/fi"
+"use client";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { FiMoreHorizontal, FiTrash2 } from "react-icons/fi";
 
-function RequestsKanban({ requests }) {
+function RequestsKanban({ requests = [] }) {
+  const [showDropdown, setShowDropdown] = useState(null);
   const statuses = ["Not Started", "In Progress", "In Review", "Completed", "Blocked"]
 
   // Group requests by status
@@ -10,6 +12,58 @@ function RequestsKanban({ requests }) {
     title: status,
     requests: requests.filter((r) => r.status === status),
   }))
+
+
+  const handleDelete = async (e, requestId) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    if (window.confirm("Are you sure you want to delete this request? This action cannot be undone.")) {
+      try {
+        console.log("Deleting request:", requestId);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`http://localhost:5002/api/requests/${requestId}`, {
+          method: 'DELETE',
+          headers: {
+            'x-auth-token': token,
+            'Accept': 'application/json'
+          }
+        });
+        
+        // Log the response for debugging
+        console.log("Delete response status:", response.status);
+        
+        if (!response.ok) {
+          let errorMessage = 'Failed to delete request';
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.msg || errorMessage;
+          } catch (parseError) {
+            // If response is not JSON, get text instead
+            const errorText = await response.text();
+            console.error("Non-JSON response:", errorText);
+          }
+          throw new Error(errorMessage);
+        }
+        
+        // Instead of reloading the page, we'll update the URL with a query parameter
+        // to preserve the kanban view
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('view', 'kanban');
+        
+        // Use history.pushState to update URL without reloading
+        window.history.pushState({}, '', currentUrl);
+        
+        // Reload the page but maintain the view parameter
+        window.location.href = currentUrl.toString();
+        
+      } catch (error) {
+        console.error("Error deleting request:", error);
+        alert(`Failed to delete request: ${error.message}`);
+      }
+    }
+    setShowDropdown(null);
+  };
 
   // Helper function to get priority badge class
   const getPriorityClass = (priority) => {
@@ -43,47 +97,68 @@ function RequestsKanban({ requests }) {
                 className="block card border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
               >
                 <div className="p-3">
-                  <div className="text-sm font-medium">{request.title}</div>
+                  <div className="text-sm font-medium">{request.title || "Untitled"}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{request.id}</div>
 
                   <div className="flex flex-wrap gap-1 mt-2">
                     {request.labels &&
-                      request.labels.map((label, index) => (
-                        <span key={index} className="badge badge-secondary text-xs">
-                          {label}
-                        </span>
-                      ))}
+                      request.labels
+                        .filter(label => label)
+                        .map((label, index) => (
+                          <span key={index} className="badge badge-secondary text-xs">
+                            {label}
+                          </span>
+                        ))}
                   </div>
 
                   <div className="flex items-center justify-between mt-3">
-                    <span className={`badge ${getPriorityClass(request.priority)}`}>{request.priority}</span>
+                    <span className={`badge ${getPriorityClass(request.priority)}`}>{request.priority || "None"}</span>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {request.effort} {request.effort === 1 ? "week" : "weeks"}
+                      {request.effort || 0} {(request.effort || 0) === 1 ? "week" : "weeks"}
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex -space-x-2">
                       {request.customers &&
-                        request.customers.map((customer, index) => (
-                          <div
-                            key={index}
-                            className="h-6 w-6 rounded-full bg-gray-300 dark:bg-gray-600 border border-white dark:border-gray-800 flex items-center justify-center text-xs text-gray-700 dark:text-gray-300"
-                            title={customer.name}
-                          >
-                            {customer.name.charAt(0)}
-                          </div>
-                        ))}
+                        request.customers
+                          .filter(customer => customer && customer.name)
+                          .map((customer, index) => (
+                            <div
+                              key={index}
+                              className="h-6 w-6 rounded-full bg-gray-300 dark:bg-gray-600 border border-white dark:border-gray-800 flex items-center justify-center text-xs text-gray-700 dark:text-gray-300"
+                              title={customer.name}
+                            >
+                              {customer.name.charAt(0)}
+                            </div>
+                          ))}
                     </div>
-                    <button
-                      className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        // Add dropdown menu logic here
-                      }}
-                    >
-                      <FiMoreHorizontal className="h-4 w-4" />
-                    </button>
+                    <div className="relative">
+                      <button
+                        className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowDropdown(showDropdown === request.id ? null : request.id);
+                        }}
+                      >
+                        <FiMoreHorizontal className="h-4 w-4" />
+                      </button>
+                      
+                      {showDropdown === request.id && (
+                        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 z-10">
+                          <div className="py-1" role="menu" aria-orientation="vertical">
+                            <button
+                              className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600"
+                              onClick={(e) => handleDelete(e, request.id)}
+                              role="menuitem"
+                            >
+                              <FiTrash2 className="mr-2" />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </Link>
@@ -95,5 +170,5 @@ function RequestsKanban({ requests }) {
   )
 }
 
-export default RequestsKanban
+export default RequestsKanban;
 

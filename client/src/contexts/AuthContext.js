@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -25,19 +24,22 @@ export function AuthProvider({ children }) {
   // Fetch user data with token
   const fetchUser = async (token) => {
     try {
-      const config = {
+      const response = await fetch("http://localhost:5002/api/auth/user", {
         headers: {
           "x-auth-token": token,
         },
-      };
-      const res = await axios.get("http://localhost:5002/api/auth/user", config);
-      setUser(res.data);
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setUser(data);
       setLoading(false);
     } catch (err) {
       console.error("Error fetching user:", {
         message: err.message,
-        status: err.response?.status,
-        data: err.response?.data,
         stack: err.stack,
       });
       localStorage.removeItem("token");
@@ -50,19 +52,31 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       setError({ message: "", details: null });
-      const res = await axios.post("http://localhost:5002/api/auth/login", { email, password });
-      localStorage.setItem("token", res.data.token);
-      setUser(res.data.user);
-      return res.data.user;
+      const response = await fetch("http://localhost:5002/api/auth/login", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || 'Login failed');
+      }
+      
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
+      setUser(data.user);
+      return data.user;
     } catch (err) {
       const errorDetails = {
-        message: err.response?.data?.msg || "Login failed",
-        status: err.response?.status,
-        data: err.response?.data,
-        stack: err.stack,
+        message: err.message,
       };
-      console.error("Login error:", errorDetails);
-      setError(errorDetails);
+      setError({
+        message: "Login failed. Please check your credentials and try again.",
+        details: errorDetails,
+      });
       throw err;
     }
   };
@@ -71,19 +85,31 @@ export function AuthProvider({ children }) {
   const register = async (name, email, password) => {
     try {
       setError({ message: "", details: null });
-      const res = await axios.post("http://localhost:5002/api/auth/register", { name, email, password });
-      localStorage.setItem("token", res.data.token);
-      setUser(res.data.user);
-      return res.data.user;
+      const response = await fetch("http://localhost:5002/api/auth/register", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email, password })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || 'Registration failed');
+      }
+      
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
+      setUser(data.user);
+      return data.user;
     } catch (err) {
       const errorDetails = {
-        message: err.response?.data?.msg || "Registration failed",
-        status: err.response?.status,
-        data: err.response?.data,
-        stack: err.stack,
+        message: err.message,
       };
-      console.error("Registration error:", errorDetails);
-      setError(errorDetails);
+      setError({
+        message: "Registration failed. Please try again.",
+        details: errorDetails,
+      });
       throw err;
     }
   };

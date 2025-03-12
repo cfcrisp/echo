@@ -12,11 +12,11 @@ function DashboardLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100 dark:bg-gray-900">
-      {/* Sidebar with dynamic width and transition */}
+      {/* Sidebar with reduced width and transition */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 w-52 bg-white dark:bg-gray-800 transform transition-transform duration-300 ease-in-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 lg:static lg:w-64`}
+        } lg:translate-x-0 lg:static lg:w-52`}
       >
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       </aside>
@@ -28,11 +28,9 @@ function DashboardLayout() {
 
         {/* Main Content Area with Padding and Overlay */}
         <main
-          className={`flex-1 overflow-y-auto p-4 md:p-6 ${
-            sidebarOpen ? "lg:ml-64" : "ml-0"
-          } transition-all duration-300 ease-in-out`}
+          className="flex-1 overflow-y-auto p-4 md:p-6 transition-all duration-300 ease-in-out"
         >
-          <div className={`min-h-screen ${sidebarOpen ? "lg:ml-64" : ""}`}>
+          <div className="min-h-screen">
             <Outlet />
           </div>
         </main>

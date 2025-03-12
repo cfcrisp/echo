@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { FiX } from "react-icons/fi";
 
 function RequestModal({ isOpen, onClose }) {
@@ -11,6 +10,7 @@ function RequestModal({ isOpen, onClose }) {
   const [error, setError] = useState("");
   
   const navigate = useNavigate();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,14 +27,6 @@ function RequestModal({ isOpen, onClose }) {
       // Get token from localStorage
       const token = localStorage.getItem("token");
       
-      // Set up request headers
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": token
-        }
-      };
-      
       // Request data
       const requestData = {
         title,
@@ -48,18 +40,31 @@ function RequestModal({ isOpen, onClose }) {
       };
       
       // Send request to create a new request
-      const response = await axios.post(
+      const response = await fetch(
         "http://localhost:5002/api/requests", 
-        requestData,
-        config
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": token
+          },
+          body: JSON.stringify(requestData)
+        }
       );
       
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || 'Failed to create request');
+      }
+      
+      const data = await response.json();
+      
       // Navigate to the edit page for the new request
-      navigate(`/dashboard/requests/${response.data.id}`);
+      navigate(`/dashboard/requests/${data.id}`);
       onClose();
     } catch (error) {
       console.error("Error creating new request:", error);
-      setError(error.response?.data?.msg || "Failed to create request");
+      setError(error.message || "Failed to create request");
     } finally {
       setLoading(false);
     }

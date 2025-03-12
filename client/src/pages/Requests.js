@@ -1,20 +1,32 @@
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import axios from "axios"
-import { FiList, FiGrid, FiSearch, FiFilter } from "react-icons/fi"
-import RequestsTable from "../components/RequestsTable"
-import RequestsKanban from "../components/RequestsKanban"
-import FilterDialog from "../components/FilterDialog"
-import NewRequestButton from "../components/NewRequestButton"
+import { useState, useEffect } from "react";
+import { FiList, FiGrid, FiSearch, FiFilter } from "react-icons/fi";
+import RequestsTable from "../components/RequestsTable";
+import RequestsKanban from "../components/RequestsKanban";
+import FilterDialog from "../components/FilterDialog";
+import NewRequestButton from "../components/NewRequestButton";
 
 function Requests() {
-  const [view, setView] = useState("list")
-  const [requests, setRequests] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filters, setFilters] = useState({})
-  const [showFilterDialog, setShowFilterDialog] = useState(false)
+  // Get the view from URL parameters or default to "list"
+  const urlParams = new URLSearchParams(window.location.search);
+  const viewParam = urlParams.get('view');
+  
+  const [view, setView] = useState(viewParam === 'kanban' ? 'kanban' : 'list');
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({});
+  const [showFilterDialog, setShowFilterDialog] = useState(false);
+
+  // When view changes, update the URL
+  const changeView = (newView) => {
+    setView(newView);
+    
+    // Update URL without reloading the page
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', newView);
+    window.history.pushState({}, '', url);
+  };
 
   const filterOptions = [
     {
@@ -25,29 +37,37 @@ function Requests() {
       label: "Priority",
       options: ["All", "Low", "Medium", "High", "Critical"],
     },
-  ]
+  ];
+
+  // Remove axios import
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const token = localStorage.getItem("token")
-        const config = {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:5002/api/requests", {
           headers: {
             "x-auth-token": token,
-          },
+            "Accept": "application/json"
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-        const res = await axios.get("http://localhost:5002/api/requests", config)
-        setRequests(res.data)
-        setLoading(false)
+        
+        const data = await response.json();
+        setRequests(data);
+        setLoading(false);
       } catch (err) {
-        console.error("Error fetching requests:", err)
-        setError("Failed to load requests")
-        setLoading(false)
+        console.error("Error fetching requests:", err);
+        setError("Failed to load requests");
+        setLoading(false);
       }
-    }
+    };
 
-    fetchRequests()
-  }, [])
+    fetchRequests();
+  }, []);
 
   const handleApplyFilters = (newFilters) => {
     setFilters(newFilters)
@@ -120,12 +140,13 @@ function Requests() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        
         <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-md p-1">
           <button
             className={`px-3 py-1 rounded-md flex items-center gap-1 ${
               view === "list" ? "bg-white dark:bg-gray-800 shadow-sm" : "text-gray-500 dark:text-gray-400"
             }`}
-            onClick={() => setView("list")}
+            onClick={() => changeView("list")}
           >
             <FiList className="h-4 w-4" />
             List
@@ -134,7 +155,7 @@ function Requests() {
             className={`px-3 py-1 rounded-md flex items-center gap-1 ${
               view === "kanban" ? "bg-white dark:bg-gray-800 shadow-sm" : "text-gray-500 dark:text-gray-400"
             }`}
-            onClick={() => setView("kanban")}
+            onClick={() => changeView("kanban")}
           >
             <FiGrid className="h-4 w-4" />
             Kanban
@@ -163,4 +184,4 @@ function Requests() {
   )
 }
 
-export default Requests
+export default Requests;
